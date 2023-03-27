@@ -1,0 +1,10 @@
+
+# Python
+venv/
+__pycache__/
+
+# LaTeX
+report/*.aux
+report/*.log
+report/*.out
+report/*.pdf
