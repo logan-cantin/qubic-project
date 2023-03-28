@@ -6,6 +6,7 @@
 
   (:init
 
+    (not (dead-end))
     (not(won mark-x))
     (not(won mark-o))
     (x-turn)
@@ -23,6 +24,7 @@
     (and
       (won mark-x)
       (not(won mark-o))
+      (not(dead-end))
     )
   )
 )

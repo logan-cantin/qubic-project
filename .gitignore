@@ -14,3 +14,8 @@ report/*.pdf
 
 # Planning
 sas_plan.1
+*.dot
+*.png
+*.sas
+*.fsap
+*.out

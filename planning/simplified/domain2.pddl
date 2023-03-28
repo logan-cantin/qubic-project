@@ -5,6 +5,8 @@
         :negative-preconditions
         :conditional-effects
         :disjunctive-preconditions
+        :non-deterministic
+        :strips
     )
 
     ; Do not modify the types
@@ -31,6 +33,8 @@
         (won ?winner - mark)
 
         (check-required)
+
+        (dead-end)
     )
 
     ; Check to see if anyone has won
@@ -83,21 +87,43 @@
 
     (:action play-o
 
-        :parameters (?c - cell)
-
         :precondition (and
             (not(won mark-x))
             (not(won mark-o))
-            (cell-mark ?c mark-empty)
             (not(x-turn))
             (not(check-required))
         )
 
         :effect (and
-            (not(cell-mark ?c mark-empty))
-            (cell-mark ?c mark-o)
             (x-turn)
             (check-required)
+            (oneof
+                
+                ;(and (cell-mark cell21 mark-o) (not(cell-mark cell21 mark-empty)))
+                ;(and (cell-mark cell20 mark-o) (not(cell-mark cell20 mark-empty)))
+                ;(cell-mark cell02 mark-o)
+                ;(cell-mark cell10 mark-o)
+                ;(cell-mark cell11 mark-o)
+                ;(cell-mark cell12 mark-o)
+                ;(cell-mark cell20 mark-o)
+                ;(cell-mark cell21 mark-o)
+                ;(cell-mark cell22 mark-o)
+
+
+                (and (when (cell-mark cell00 mark-empty) (and (not(cell-mark cell00 mark-empty)) (cell-mark cell00 mark-o))) (when (not(cell-mark cell00 mark-empty)) (dead-end)))
+
+                (and (when (cell-mark cell00 mark-empty) (and (not (cell-mark cell00 mark-empty)) (cell-mark cell00 mark-o))) (when (not(cell-mark cell00 mark-empty)) (dead-end))) (and (when (cell-mark cell01 mark-empty) (and (not (cell-mark cell01 mark-empty)) (cell-mark cell01 mark-o))) (when (not(cell-mark cell01 mark-empty)) (dead-end))) (and (when (cell-mark cell02 mark-empty) (and (not (cell-mark cell02 mark-empty)) (cell-mark cell02 mark-o))) (when (not(cell-mark cell02 mark-empty)) (dead-end))) (and (when (cell-mark cell10 mark-empty) (and (not (cell-mark cell10 mark-empty)) (cell-mark cell10 mark-o))) (when (not(cell-mark cell10 mark-empty)) (dead-end))) (and (when (cell-mark cell11 mark-empty) (and (not (cell-mark cell11 mark-empty)) (cell-mark cell11 mark-o))) (when (not(cell-mark cell11 mark-empty)) (dead-end))) (and (when (cell-mark cell12 mark-empty) (and (not (cell-mark cell12 mark-empty)) (cell-mark cell12 mark-o))) (when (not(cell-mark cell12 mark-empty)) (dead-end))) (and (when (cell-mark cell20 mark-empty) (and (not (cell-mark cell20 mark-empty)) (cell-mark cell20 mark-o))) (when (not(cell-mark cell20 mark-empty)) (dead-end))) (and (when (cell-mark cell21 mark-empty) (and (not (cell-mark cell21 mark-empty)) (cell-mark cell21 mark-o))) (when (not(cell-mark cell21 mark-empty)) (dead-end))) (and (when (cell-mark cell22 mark-empty) (and (not (cell-mark cell22 mark-empty)) (cell-mark cell22 mark-o))) (when (not(cell-mark cell22 mark-empty)) (dead-end)))
+
+                ; (when (cell-mark cell00 mark-empty) (and (not(cell-mark cell00 mark-empty)) (cell-mark cell00 mark-o)))
+                ; (when (cell-mark cell01 mark-empty) (and (not(cell-mark cell01 mark-empty)) (cell-mark cell01 mark-o)))
+                ; (when (cell-mark cell02 mark-empty) (and (not(cell-mark cell02 mark-empty)) (cell-mark cell02 mark-o)))
+                ; (when (cell-mark cell10 mark-empty) (and (not(cell-mark cell10 mark-empty)) (cell-mark cell10 mark-o)))
+                ; (when (cell-mark cell11 mark-empty) (and (not(cell-mark cell11 mark-empty)) (cell-mark cell11 mark-o)))
+                ; (when (cell-mark cell12 mark-empty) (and (not(cell-mark cell12 mark-empty)) (cell-mark cell12 mark-o)))
+                ; (when (cell-mark cell20 mark-empty) (and (not(cell-mark cell20 mark-empty)) (cell-mark cell20 mark-o)))
+                ; (when (cell-mark cell21 mark-empty) (and (not(cell-mark cell21 mark-empty)) (cell-mark cell21 mark-o)))
+                ; (when (cell-mark cell22 mark-empty) (and (not(cell-mark cell22 mark-empty)) (cell-mark cell22 mark-o)))
+            )
         )
     )
 
