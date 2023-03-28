@@ -46,8 +46,9 @@ class Qubic:
 
     def solved(self):
         triples = Qubic.generate_triples()
+        hyperboard_triples_sum = np.sum(self.hyperboard.flat[triples], axis=1)
 
-        return np.any(np.sum(self.hyperboard.flat[triples], axis=1) == 3) or np.any(np.sum(self.hyperboard.flat[triples]) == -3)
+        return np.any(hyperboard_triples_sum == 3) or np.any(hyperboard_triples_sum == -3)
 
     def make_move(self, player_id, coords):
 

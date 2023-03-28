@@ -5,7 +5,7 @@ import itertools
 
 from qubic import Qubic
 
-class QubicSolver():
+class QubicBaseSolver():
 
     def __init__(self, player_id):
 
@@ -16,48 +16,80 @@ class QubicSolver():
     def solve(self, q):
 
         # Create model
-        model = cp_model.CpModel()
-        hyperboard = np.array(q.hyperboard.flat)
+        self.q = q
+        self.model = cp_model.CpModel()
+        self.hyperboard = np.array(q.hyperboard.flat)
 
         # Create the variables
-        cubes = np.array([
-            model.NewIntVar(-1, 1, f'Cube({i % 3},{(i % 9) // 3},{i // 9})') for i in range(27)
+        self.cubes = np.array([
+            self.model.NewIntVar(-1, 1, f'Cube({i % 3},{(i % 9) // 3},{i // 9})') for i in range(27)
         ])
-        empty = list()
+        self.var_cube_map = {
+            self.cubes.reshape((3, 3, 3))[index]: index
+            for index in np.ndindex(3, 3, 3)
+        }
+        self.empty = list()
 
         # Add constraints for tiles that have already been placed
-        for var, val in zip(cubes, hyperboard):
+        for var, val in zip(self.cubes, self.hyperboard):
             if val != 0:
-                model.Add(var == val)
+                self.model.Add(var == val)
             else:
-                empty.append(var)
+                self.empty.append(var)
+
+        # Must place exactly one piece
+        exactly_one = [
+            i*(0,) + (-1,) + (len(self.empty) - i - 1)*(0,)
+            for i in range(len(self.empty)) 
+        ]
+        self.model.AddAllowedAssignments(
+            self.empty, exactly_one
+        )
+                    
+
+class QubicWinSolver(QubicBaseSolver):
+
+    def solve(self):
+
+        # Try to find a way to get a win
+        triples = Qubic.generate_triples()
+        self.model.AddAtLeastOne(np.sum(self.cubes[triples], axis=1) == -3)
+
+        solver = cp_model.CpSolver()
+        status = solver.Solve(self.model)
+
+        if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+            for var in self.empty:
+                if solver.Value(var) != 0:
+                    print(var, solver.Value(var), self.var_cube_map[var])
+        else:
+            print('loss')
+
+
+
+class QubicPreventionSolver(QubicBaseSolver):
+
+    def solve(self, q):
+        super().solve(q)
 
         # Must attempt to prevent opponent from winning
         for triple in Qubic.generate_triples():
-            model.Add(np.sum(cubes[triple]) < 2)
-        
-        # Must place exactly one piece
-        exactly_one = [
-            i*(0,) + (-1,) + (len(empty) - i - 1)*(0,)
-            for i in range(len(empty)) 
-        ]
-        model.AddAllowedAssignments(
-            empty, exactly_one
-        )
+            self.model.Add(np.sum(self.cubes[triple]) < 2)
 
         solver = cp_model.CpSolver()
-        status = solver.Solve(model)
+        status = solver.Solve(self.model)
 
         if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
-            for var in empty:
+            for var in self.empty:
                 if solver.Value(var) != 0:
-                    print(var, solver.Value(var))
+                    return tuple(reversed(self.var_cube_map[var]))
         else:
             print('loss')
-                    
+            return None
+
 
 q = Qubic()
-opponent = QubicSolver(1)
+opponent = QubicPreventionSolver(-1)
 
 while not q.solved():
     
@@ -67,49 +99,6 @@ while not q.solved():
         coords = tuple(int(x) for x in input("What's your move? ").split(' '))
         q.make_move(1, coords)
     else:
-        opponent.solve(q)
-        coords = tuple(int(x) for x in input("Coords:").split())
-        q.make_move(-1, coords)
+        move = opponent.solve(q)
+        q.make_move(-1, move)
 
-
-
-
-'''
-        # Create constraints:
-        # For each row / column, 
-        for i in range(3):
-            model.AddAllowedAssignments(
-                squares[i], (1, 1, 1))
-            model.AddAllowedAssignments(
-                [squares[j][i] for j in range(3)], (1, 1, 1))
-        for i in [0, 2]:
-            model.AddAllowedAssignments(
-                [squares[i][2-i], squares[1][1], squares[2-i][i]], (1, 1, 1)
-            )
-
-    class TTTSolutionPrinter(cp_model.CpSolverSolutionCallback):
-        """Print intermediate solutions."""
-
-        def __init__(self, squares):
-            cp_model.CpSolverSolutionCallback.__init__(self)
-            self.__squares = squares
-            self.__solution_count = 0
-            self.__start_time = time.time()
-
-        def solution_count(self):
-            return self.__solution_count
-
-        def on_solution_callback(self):
-            current_time = time.time()
-            print('Solution %i, time = %f s' %
-                (self.__solution_count, current_time - self.__start_time))
-            self.__solution_count += 1
-
-            for x in range(3):
-                for y in range(3):
-                    if squares[x][y]
-
-
-    solver = cp_model.CpSolver()
-    solution_printer = TTTSolutionPrinter(squares)
-'''
