@@ -7,33 +7,74 @@
         :disjunctive-preconditions
     )
 
-    ; Do not modify the types
     (:types
         cell mark
     )
 
-    ; Do not modify the constants
     (:constants
         mark-x mark-o mark-empty - mark
         cell000 cell001 cell002 cell010 cell011 cell012 cell020 cell021 cell022 cell100 cell101 cell102 cell110 cell111 cell112 cell120 cell121 cell122 cell200 cell201 cell202 cell210 cell211 cell212 cell220 cell221 cell222 - cell
     )
 
-    ; You may introduce whatever predicates you would like to use
     (:predicates
     
         ; Mark a cell
         (cell-mark ?cell - cell ?mark - mark)
 
-        ; X turn
+        ; X's turn
         (x-turn)
 
-        ; Win
+        ; If a player has won
         (won ?winner - mark)
 
-        ; Check required
+        ; Whether a board check is required
         (check-required)
     )
 
+
+    ; Play an x on the board
+    (:action play-x
+
+        :parameters (?c - cell)
+
+        :precondition (and
+            (cell-mark ?c mark-empty)
+            (x-turn)
+            (not(check-required))
+            (not(won mark-x))
+            (not(won mark-o))
+        )
+
+        :effect (and
+            (not(cell-mark ?c mark-empty))
+            (cell-mark ?c mark-x)
+            (not(x-turn))
+            (check-required)
+        )
+    )
+
+    ; Play an o on the board
+    (:action play-o
+
+        :parameters (?c - cell)
+
+        :precondition (and
+            (cell-mark ?c mark-empty)
+            (not(x-turn))
+            (not(check-required))
+            (not(won mark-x))
+            (not(won mark-o))
+        )
+
+        :effect (and
+            (not(cell-mark ?c mark-empty))
+            (cell-mark ?c mark-o)
+            (x-turn)
+            (check-required)
+        )
+    )
+
+    ; Check: checks the board to see if there has been a winner
     (:action check
 
         :precondition (and 
@@ -140,47 +181,6 @@
             (when (and (cell-mark cell202 mark-x)(cell-mark cell212 mark-x)(cell-mark cell222 mark-x)) (and(won mark-x)))
             (when (and (cell-mark cell210 mark-x)(cell-mark cell211 mark-x)(cell-mark cell212 mark-x)) (and(won mark-x)))
             (when (and (cell-mark cell220 mark-x)(cell-mark cell221 mark-x)(cell-mark cell222 mark-x)) (and(won mark-x)))
-        )
-    )
-
-    ; Play an x
-    (:action play-x
-
-        :parameters (?c - cell)
-
-        :precondition (and
-            (cell-mark ?c mark-empty)
-            (x-turn)
-            (not(check-required))
-            (not(won mark-x))
-            (not(won mark-o))
-        )
-
-        :effect (and
-            (not(cell-mark ?c mark-empty))
-            (cell-mark ?c mark-x)
-            (not(x-turn))
-            (check-required)
-        )
-    )
-
-    (:action play-o
-
-        :parameters (?c - cell)
-
-        :precondition (and
-            (cell-mark ?c mark-empty)
-            (not(x-turn))
-            (not(check-required))
-            (not(won mark-x))
-            (not(won mark-o))
-        )
-
-        :effect (and
-            (not(cell-mark ?c mark-empty))
-            (cell-mark ?c mark-o)
-            (x-turn)
-            (check-required)
         )
     )
 
