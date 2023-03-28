@@ -16,4 +16,8 @@ In this technique, we use a Planner to pick the best moves. The board is modeled
 Deep reinforcement learning is used for the last technique.
 
 ## Usage
-More details to come as more work is completed.
+
+### Planning
+To run the planner, you first need to install a suitable planner. The online planner-as-a-service, planning.domains, is not suitable for this task, as it times out. You can find instructions for downloading planutils (a python library for managing different planners) [here](https://pypi.org/project/planutils/). I used the LAMA planner.
+
+Run the planner with `planutils run lama domain.pddl problem.pddl`. It took my computer about 20s to solve the problem. The solution will be saved to a file, `sas_plan.1`.

@@ -5,7 +5,7 @@
   )
 
   (:init
-
+    
     (x-turn)
     (cell-mark cell000 mark-empty)
     (cell-mark cell001 mark-empty)

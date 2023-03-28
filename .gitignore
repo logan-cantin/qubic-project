@@ -11,3 +11,6 @@ report/*.pdf
 
 # VSCode
 .vscode/
+
+# Planning
+sas_plan.1
