@@ -52,7 +52,7 @@ class Qubic:
 
     def make_move(self, player_id, coords):
 
-        coords = tuple(reversed(coords))
+        coords = tuple(coords)
 
         if not self.hyperboard[coords] == 0:
             raise RuntimeError("bad move")

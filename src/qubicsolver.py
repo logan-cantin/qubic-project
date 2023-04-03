@@ -5,7 +5,7 @@ import itertools
 
 from qubic import Qubic
 
-class QubicBaseSolver():
+class QubicSolver():
 
     def __init__(self, player_id):
 
@@ -13,7 +13,7 @@ class QubicBaseSolver():
         self.player_id = player_id
         
 
-    def solve(self, q):
+    def _solve_init(self, q):
 
         # Create model
         self.q = q
@@ -22,7 +22,8 @@ class QubicBaseSolver():
 
         # Create the variables
         self.cubes = np.array([
-            self.model.NewIntVar(-1, 1, f'Cube({i % 3},{(i % 9) // 3},{i // 9})') for i in range(27)
+            self.model.NewIntVar(-1, 1, f'Cube({i % 3},{(i % 9) // 3},{i // 9})')
+            for i in range(27)
         ])
         self.var_cube_map = {
             self.cubes.reshape((3, 3, 3))[index]: index
@@ -46,14 +47,17 @@ class QubicBaseSolver():
             self.empty, exactly_one
         )
                     
-
-class QubicWinSolver(QubicBaseSolver):
-
-    def solve(self):
+    def winning_move(self, q):
+        
+        # Create the base model 
+        self._solve_init(q)
 
         # Try to find a way to get a win
         triples = Qubic.generate_triples()
-        self.model.AddAtLeastOne(np.sum(self.cubes[triples], axis=1) == -3)
+        bs = [self.model.NewBoolVar('{n}') for n in range(len(triples))]
+        self.model.AddExactlyOne(bs)
+        for i, (i1, i2, i3) in enumerate(triples):
+            self.model.Add(self.cubes[i1] + self.cubes[i2] + self.cubes[i3] == -3).OnlyEnforceIf(bs[i])
 
         solver = cp_model.CpSolver()
         status = solver.Solve(self.model)
@@ -61,16 +65,12 @@ class QubicWinSolver(QubicBaseSolver):
         if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
             for var in self.empty:
                 if solver.Value(var) != 0:
-                    print(var, solver.Value(var), self.var_cube_map[var])
+                    return self.var_cube_map[var]
         else:
-            print('loss')
+            return None
 
-
-
-class QubicPreventionSolver(QubicBaseSolver):
-
-    def solve(self, q):
-        super().solve(q)
+    def prevent_opponent_win(self, q):
+        self._solve_init(q)
 
         # Must attempt to prevent opponent from winning
         for triple in Qubic.generate_triples():
@@ -82,14 +82,36 @@ class QubicPreventionSolver(QubicBaseSolver):
         if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
             for var in self.empty:
                 if solver.Value(var) != 0:
-                    return tuple(reversed(self.var_cube_map[var]))
+                    return tuple(self.var_cube_map[var])
         else:
-            print('loss')
+            return None
+    
+    def best_other_move(self, q):
+        self._solve_init(q)
+
+        solver = cp_model.CpSolver()
+        status = solver.Solve(self.model)
+
+        if status == cp_model.OPTIMAL or status == cp_model.FEASIBLE:
+            for var in self.empty:
+                if solver.Value(var) != 0:
+                    return tuple(self.var_cube_map[var])
+        else:
             return None
 
 
+
 q = Qubic()
-opponent = QubicPreventionSolver(-1)
+o = QubicSolver(-1)
+
+#q.make_move(1, (0,0,0))
+#q.make_move(-1, (0,0,1))
+#q.make_move(1, (2,2,2))
+#q.make_move(-1,(1,1,1))
+#q.make_move(1,(2,2,0))
+
+
+
 
 while not q.solved():
     
@@ -99,6 +121,13 @@ while not q.solved():
         coords = tuple(int(x) for x in input("What's your move? ").split(' '))
         q.make_move(1, coords)
     else:
-        move = opponent.solve(q)
+        
+        move = o.winning_move(q)
+        if move is None:
+            move = o.prevent_opponent_win(q)
+        if move is None:
+            move = o.best_other_move(q)
         q.make_move(-1, move)
 
+
+q.print()

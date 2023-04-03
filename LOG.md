@@ -10,3 +10,7 @@ New "check" action successfully solved the problem. It took about 20 seconds to 
 
 Talked to professor Muise: was able to get FOND working. Now, having issues with conditional effects being selected, but they correspond to a position that has already been selected.
 Got around this issue by having a "dead end" fluent that corresponds to when the opponent places their piece on an square that is already taken. This shouldn't happen in real life, so this dead end mechanism shouldn't cause any issues.
+
+## April 3rd
+Working on the CSP solver. Currently refactoring and modelling different types of solvers for different scenarios (causing a win, preventing the other person from winning).
+I got the winning_move solver to work. It was very complicated to get the solver to enforce this constraint.
