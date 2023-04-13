@@ -1,5 +1,5 @@
 
-from qubic import Qubic
+from src.qubic import Qubic
 import numpy as np
 
 

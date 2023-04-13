@@ -110,9 +110,15 @@
                 ;(cell-mark cell22 mark-o)
 
 
-                (and (when (cell-mark cell00 mark-empty) (and (not(cell-mark cell00 mark-empty)) (cell-mark cell00 mark-o))) (when (not(cell-mark cell00 mark-empty)) (dead-end)))
-
-                (and (when (cell-mark cell00 mark-empty) (and (not (cell-mark cell00 mark-empty)) (cell-mark cell00 mark-o))) (when (not(cell-mark cell00 mark-empty)) (dead-end))) (and (when (cell-mark cell01 mark-empty) (and (not (cell-mark cell01 mark-empty)) (cell-mark cell01 mark-o))) (when (not(cell-mark cell01 mark-empty)) (dead-end))) (and (when (cell-mark cell02 mark-empty) (and (not (cell-mark cell02 mark-empty)) (cell-mark cell02 mark-o))) (when (not(cell-mark cell02 mark-empty)) (dead-end))) (and (when (cell-mark cell10 mark-empty) (and (not (cell-mark cell10 mark-empty)) (cell-mark cell10 mark-o))) (when (not(cell-mark cell10 mark-empty)) (dead-end))) (and (when (cell-mark cell11 mark-empty) (and (not (cell-mark cell11 mark-empty)) (cell-mark cell11 mark-o))) (when (not(cell-mark cell11 mark-empty)) (dead-end))) (and (when (cell-mark cell12 mark-empty) (and (not (cell-mark cell12 mark-empty)) (cell-mark cell12 mark-o))) (when (not(cell-mark cell12 mark-empty)) (dead-end))) (and (when (cell-mark cell20 mark-empty) (and (not (cell-mark cell20 mark-empty)) (cell-mark cell20 mark-o))) (when (not(cell-mark cell20 mark-empty)) (dead-end))) (and (when (cell-mark cell21 mark-empty) (and (not (cell-mark cell21 mark-empty)) (cell-mark cell21 mark-o))) (when (not(cell-mark cell21 mark-empty)) (dead-end))) (and (when (cell-mark cell22 mark-empty) (and (not (cell-mark cell22 mark-empty)) (cell-mark cell22 mark-o))) (when (not(cell-mark cell22 mark-empty)) (dead-end)))
+                (and (when (cell-mark cell00 mark-empty) (and (not (cell-mark cell00 mark-empty)) (cell-mark cell00 mark-o))) (when (not(cell-mark cell00 mark-empty)) (dead-end)))
+                (and (when (cell-mark cell01 mark-empty) (and (not (cell-mark cell01 mark-empty)) (cell-mark cell01 mark-o))) (when (not(cell-mark cell01 mark-empty)) (dead-end)))
+                (and (when (cell-mark cell02 mark-empty) (and (not (cell-mark cell02 mark-empty)) (cell-mark cell02 mark-o))) (when (not(cell-mark cell02 mark-empty)) (dead-end)))
+                (and (when (cell-mark cell10 mark-empty) (and (not (cell-mark cell10 mark-empty)) (cell-mark cell10 mark-o))) (when (not(cell-mark cell10 mark-empty)) (dead-end)))
+                (and (when (cell-mark cell11 mark-empty) (and (not (cell-mark cell11 mark-empty)) (cell-mark cell11 mark-o))) (when (not(cell-mark cell11 mark-empty)) (dead-end)))
+                (and (when (cell-mark cell12 mark-empty) (and (not (cell-mark cell12 mark-empty)) (cell-mark cell12 mark-o))) (when (not(cell-mark cell12 mark-empty)) (dead-end)))
+                (and (when (cell-mark cell20 mark-empty) (and (not (cell-mark cell20 mark-empty)) (cell-mark cell20 mark-o))) (when (not(cell-mark cell20 mark-empty)) (dead-end)))
+                (and (when (cell-mark cell21 mark-empty) (and (not (cell-mark cell21 mark-empty)) (cell-mark cell21 mark-o))) (when (not(cell-mark cell21 mark-empty)) (dead-end)))
+                (and (when (cell-mark cell22 mark-empty) (and (not (cell-mark cell22 mark-empty)) (cell-mark cell22 mark-o))) (when (not(cell-mark cell22 mark-empty)) (dead-end)))
 
                 ; (when (cell-mark cell00 mark-empty) (and (not(cell-mark cell00 mark-empty)) (cell-mark cell00 mark-o)))
                 ; (when (cell-mark cell01 mark-empty) (and (not(cell-mark cell01 mark-empty)) (cell-mark cell01 mark-o)))
