@@ -7,9 +7,6 @@
   (:init
     
     (x-turn)
-    (not (dead-end))
-    (not (won mark-x))
-    (not (won mark-o))
     (cell-mark cell000 mark-empty)
     (cell-mark cell001 mark-empty)
     (cell-mark cell002 mark-empty)
@@ -43,7 +40,6 @@
     (and
       (won mark-x)
       (not(won mark-o))
-      (not (dead-end))
     )
   )
 )

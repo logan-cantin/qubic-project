@@ -104,14 +104,6 @@ class QubicSolver():
 q = Qubic()
 o = QubicSolver(-1)
 
-#q.make_move(1, (0,0,0))
-#q.make_move(-1, (0,0,1))
-#q.make_move(1, (2,2,2))
-#q.make_move(-1,(1,1,1))
-#q.make_move(1,(2,2,0))
-
-
-
 
 while not q.solved():
     

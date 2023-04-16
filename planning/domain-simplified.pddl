@@ -30,9 +30,6 @@
 
         ; Whether a board check is required
         (check-required)
-
-        ; prevents the opponent from playing over a cell that has already been marked
-        (dead-end)
     )
 
 
@@ -60,7 +57,10 @@
     ; Play an o on the board
     (:action play-o
 
+        :parameters (?c - cell)
+
         :precondition (and
+            (cell-mark ?c mark-empty)
             (not(x-turn))
             (not(check-required))
             (not(won mark-x))
@@ -68,40 +68,10 @@
         )
 
         :effect (and
+            (not(cell-mark ?c mark-empty))
+            (cell-mark ?c mark-o)
             (x-turn)
             (check-required)
-            (oneof
-            
-                (and (when (cell-mark cell000 mark-empty) (and (not (cell-mark cell000 mark-empty)) (cell-mark cell000 mark-o))) (when (not(cell-mark cell000 mark-empty)) (dead-end)))
-                (and (when (cell-mark cell001 mark-empty) (and (not (cell-mark cell001 mark-empty)) (cell-mark cell001 mark-o))) (when (not(cell-mark cell001 mark-empty)) (dead-end)))
-                (and (when (cell-mark cell002 mark-empty) (and (not (cell-mark cell002 mark-empty)) (cell-mark cell002 mark-o))) (when (not(cell-mark cell002 mark-empty)) (dead-end)))
-                (and (when (cell-mark cell010 mark-empty) (and (not (cell-mark cell010 mark-empty)) (cell-mark cell010 mark-o))) (when (not(cell-mark cell010 mark-empty)) (dead-end)))
-                (and (when (cell-mark cell011 mark-empty) (and (not (cell-mark cell011 mark-empty)) (cell-mark cell011 mark-o))) (when (not(cell-mark cell011 mark-empty)) (dead-end)))
-                (and (when (cell-mark cell012 mark-empty) (and (not (cell-mark cell012 mark-empty)) (cell-mark cell012 mark-o))) (when (not(cell-mark cell012 mark-empty)) (dead-end)))
-                (and (when (cell-mark cell020 mark-empty) (and (not (cell-mark cell020 mark-empty)) (cell-mark cell020 mark-o))) (when (not(cell-mark cell020 mark-empty)) (dead-end)))
-                (and (when (cell-mark cell021 mark-empty) (and (not (cell-mark cell021 mark-empty)) (cell-mark cell021 mark-o))) (when (not(cell-mark cell021 mark-empty)) (dead-end)))
-                (and (when (cell-mark cell022 mark-empty) (and (not (cell-mark cell022 mark-empty)) (cell-mark cell022 mark-o))) (when (not(cell-mark cell022 mark-empty)) (dead-end)))
-                (and (when (cell-mark cell100 mark-empty) (and (not (cell-mark cell100 mark-empty)) (cell-mark cell100 mark-o))) (when (not(cell-mark cell100 mark-empty)) (dead-end)))
-                (and (when (cell-mark cell101 mark-empty) (and (not (cell-mark cell101 mark-empty)) (cell-mark cell101 mark-o))) (when (not(cell-mark cell101 mark-empty)) (dead-end)))
-                (and (when (cell-mark cell102 mark-empty) (and (not (cell-mark cell102 mark-empty)) (cell-mark cell102 mark-o))) (when (not(cell-mark cell102 mark-empty)) (dead-end)))
-                (and (when (cell-mark cell110 mark-empty) (and (not (cell-mark cell110 mark-empty)) (cell-mark cell110 mark-o))) (when (not(cell-mark cell110 mark-empty)) (dead-end)))
-                (and (when (cell-mark cell111 mark-empty) (and (not (cell-mark cell111 mark-empty)) (cell-mark cell111 mark-o))) (when (not(cell-mark cell111 mark-empty)) (dead-end)))
-                (and (when (cell-mark cell112 mark-empty) (and (not (cell-mark cell112 mark-empty)) (cell-mark cell112 mark-o))) (when (not(cell-mark cell112 mark-empty)) (dead-end)))
-                (and (when (cell-mark cell120 mark-empty) (and (not (cell-mark cell120 mark-empty)) (cell-mark cell120 mark-o))) (when (not(cell-mark cell120 mark-empty)) (dead-end)))
-                (and (when (cell-mark cell121 mark-empty) (and (not (cell-mark cell121 mark-empty)) (cell-mark cell121 mark-o))) (when (not(cell-mark cell121 mark-empty)) (dead-end)))
-                (and (when (cell-mark cell122 mark-empty) (and (not (cell-mark cell122 mark-empty)) (cell-mark cell122 mark-o))) (when (not(cell-mark cell122 mark-empty)) (dead-end)))
-                (and (when (cell-mark cell200 mark-empty) (and (not (cell-mark cell200 mark-empty)) (cell-mark cell200 mark-o))) (when (not(cell-mark cell200 mark-empty)) (dead-end)))
-                (and (when (cell-mark cell201 mark-empty) (and (not (cell-mark cell201 mark-empty)) (cell-mark cell201 mark-o))) (when (not(cell-mark cell201 mark-empty)) (dead-end)))
-                (and (when (cell-mark cell202 mark-empty) (and (not (cell-mark cell202 mark-empty)) (cell-mark cell202 mark-o))) (when (not(cell-mark cell202 mark-empty)) (dead-end)))
-                (and (when (cell-mark cell210 mark-empty) (and (not (cell-mark cell210 mark-empty)) (cell-mark cell210 mark-o))) (when (not(cell-mark cell210 mark-empty)) (dead-end)))
-                (and (when (cell-mark cell211 mark-empty) (and (not (cell-mark cell211 mark-empty)) (cell-mark cell211 mark-o))) (when (not(cell-mark cell211 mark-empty)) (dead-end)))
-                (and (when (cell-mark cell212 mark-empty) (and (not (cell-mark cell212 mark-empty)) (cell-mark cell212 mark-o))) (when (not(cell-mark cell212 mark-empty)) (dead-end)))
-                (and (when (cell-mark cell220 mark-empty) (and (not (cell-mark cell220 mark-empty)) (cell-mark cell220 mark-o))) (when (not(cell-mark cell220 mark-empty)) (dead-end)))
-                (and (when (cell-mark cell221 mark-empty) (and (not (cell-mark cell221 mark-empty)) (cell-mark cell221 mark-o))) (when (not(cell-mark cell221 mark-empty)) (dead-end)))
-                (and (when (cell-mark cell222 mark-empty) (and (not (cell-mark cell222 mark-empty)) (cell-mark cell222 mark-o))) (when (not(cell-mark cell222 mark-empty)) (dead-end)))
-
-
-            )
         )
     )
 

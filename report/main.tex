@@ -19,7 +19,11 @@
 \usepackage[protrusion=true,expansion=true]{microtype} % Improves typography, load after fontpackage is selected
 
 \usepackage{lipsum} % Used for inserting dummy 'Lorem ipsum' text into the template
+\usepackage{amsfonts}
+\usepackage{csquotes}
 
+\newcommand{\XX}{$\mathbb{X}$ }
+\newcommand{\OO}{$\mathbb{O}$ }
 
 %-----------------------
 % Set pdf information and add title, fill in the fields
@@ -37,49 +41,62 @@ pdfauthor = {}
 
 \section{Introduction}
 
-Qubic is a 3d version of tictactoe.
-Triple is a row of three cubes...
-Let $c_{i, j, k}$ represent the value of the cube at i,j,k.
+Tic Tac Toe is a fun two-player game that can be played on pen and paper. A 3x3 grid is drawn on the page and the players alternate marking an empty square on the grid. The goal of the game is to get three of your marks in a straight line; that is, a horizonal, vertical, or diagonal line.
 
-Mathematical properties of Qubic (i.e. first-player-wins).
+The original version of Tic Tac Toe is not usually played by adults, because it is very simple. If both players have optimal strategy, every game results in a draw, which makes the game futile.\footnote{https://mathworld.wolfram.com/Tic-Tac-Toe.html} Indeed, it is not hard for an adult to play a perfect game, since there aren't that many squares on the board and all possibilities can be considered.
+
+Qubic is a variation of Tic Tac Toe that is in 3D. Traditionally, the size of the game board is 4x4x4 (for reasons that will be explained below), but in this report the 3x3x3 variant will be considered. This game has the same rules as Tic Tac Toe: players alternate placing their marks on empty cubes on the board. The goal of the game is to get a row of 3. However, now there are rows of 3 parallel to the x, y, and z axes, as well as diagonals in the xy, yz, and xz planes, and even diagonals spanning all three axes.
+
+Technically speaking, 3x3x3 Qubic is also a futile game, since an optimal player who plays first is guaranteed to win every time.\footnote{4x4x4 Qubic also has a first-player-wins strategy, however it is much more complicated than the 3x3x3, which is why it is a more popular variant. \url{http://library.msri.org/books/Book42/files/golomb.pdf}} However, due to the complexity of visualizing the game in three dimensions and the number of possible rows, the average adult player has a much harder time considering all possibilities, resulting in games that are more evenly matched and interesting.
+
+\subsection{Notation and terminology}
+This report will include some mathematical notation and terminology, which will be defined in this section. 
+
+We will let $c_{x}$ represent the value of the cube at position $x$, where $x$ is a 3-tuple of integers in the range 0-2 inclusive. The cube positions will be indexed from 0; therefore, the top left back corner is (0, 0, 0) and the bottom right front corner is (2, 2, 2).
+
+A triple is a row of three cubes that are in a vertical, horizontal, or diagonal line through the cube. If a player occupies all the cubes in a triple with their mark, then they have won. Mathematically, a set of three coordinates $\{x, y, z\}$ is a triple if and only if $y = v + x$ and $z = 2v + x$, where $v$ is one of \{$(1, 0, 0)$, $(0, 1, 0)$, $(0, 0, 1)$, $(1, 1, 0)$, $(1, 0, 1)$, $(0, 1, 1)$, $(1, 1, 1)$\}. Examples of triples include $\{(0, 0, 0), (0, 1, 0), (0, 2, 0)\}$ and $\{(0, 0, 0), (1, 1, 1), (2, 2, 2)\}$.
+
+The marks on the board will be represented by \XX and \OO to differentate them from the letters X and O. Often, the marks are represented by integers rather than symbols in the models, and the convention used in this paper is that \XX and \OO are represented by 1 and -1, respectively.
+
+
 
 \section{CSPs}
-The Constraint Satisfaction Problem (herein referred to as CSP) is the problem of selecting values for one or more integer variables that satisfies some contraint. For example, if you have three variables, X, Y, Z that are all in the range 0...3, and you are trying to satisfy 3X + 2YZ < 5, the CSP solver would return solutions such as (0, 0, 0), (1, 0, 0), (1, 1, 0), etc.
+The Constraint Satisfaction Problem (herein referred to as CSP) is the problem of selecting values for one or more integer variables that satisfies some contraint. For example, if you have three variables, $x, y, z$ that are all in the range $0...3$, and you are trying to satisfy the constraint $3x + 2yz < 5$, the CSP solver would return solutions such as $(x,y,z) = $ (0, 0, 0), (1, 0, 0), (1, 1, 0), etc.
 
 In this case, we need a way to model the game Qubic as a CSP.
 
 \subsection{Model}
-In the model, we will have a variable representing each of the cubes in Qubic. A value of zero for one of the variables will represent that the corresponding cube is empty; 1 represents an X; and -1 represents an O. The model will take as input the current state of the board, and will return a single move that should be taken next. In this case, the model will only ever play "for" the "O", and as such it will always optimize for O to win.
+In the model, we will have a variable representing each of the cubes in Qubic. A value of zero for one of the variables will represent that the corresponding cube is empty; 1 represents an \XX; and -1 represents an \OO. The model will take as input the current state of the board, and will return a single move that should be taken next. In this case, the model will only ever play on behalf of \OO, and as such it will always optimize for \OO to win.
 
-CSP models are too simple to encode the logic for an advanced Qubic player: a CSP can only represent one strategy, but there are different strategies depending on the situation that you are in. The general strategy breaks down to:
+Individual CSP models are too simple to encode the logic for an advanced Qubic player: a CSP can only represent one strategy, but there are different strategies depending on the situation that you are in. The general strategy breaks down as follows:\footnote{These rules are loosely based off of the algorithm from Newell and Simon, \url{https://onlinelibrary.wiley.com/doi/epdf/10.1207/s15516709cog1704_3}}
 \begin{enumerate}
     \item[(a)] If there is a winning move, you should take it.
     \item[(b)] If the opponent will have a winning move next turn, you should try to block it, if possible.
-    \item[(c)] Otherwise, you should try to work towards making a section of 3 for yourself.
+    \item[(c)] Otherwise, you should try to work towards making a triple for yourself.
 \end{enumerate}
-The models will be utilized in series: that is, the first model will be run, and if a suitable solution is found, it will make that move. Otherwise, it will attempt the second model, and any suitable move will be taken. Finally, if the first two models fail, the last model will select the move.
+One sub-model will be designed for each strategy. The sub-models will be utilized in series: that is, the first sub-model will be run, and if a suitable solution is found, it will make that move. Otherwise, an attempt to find solution for the second sub-model will begin, and if it is successful it will take that move. Finally, if the first two sub-models fail, the last sub-model will select the move.
 
 \subsubsection{Constraints common to all sub-models}
-Regardless of which sub-model is being used, there are a few common constraints which apply. Firstly, any space which is currently occupied with an X or O must remain that way. In other words, the model may not opt to change a cube which has already been played. Secondly, the model may only play one new move. For example, it can not add two new X's on it's turn to make a win.
+Regardless of which sub-model is being used, there are a few common constraints which apply. Firstly, any space which is currently occupied with an \XX or \OO must remain that way. In other words, the model may not opt to change the mark of a cube which has already been played. Secondly, the model may only play one new move per turn. For example, it can not add two new \OO's on its turn to make a win.
 
 \subsubsection{Winning Sub-model}
 The winning sub-model will attempt to find a way for the current player to get a row of three cubes. Mathematically, that means there exists a triple of coordinates $x, y, z$ such that
 $$ c_x + c_y + c_z = -3.$$
 In other words, there should be exactly one triple of cubes such that the the sum of the cubes is -3.
 
-For technical reasons related to limitations of the solver, additional variables were needed. One boolean variable for each of the triples was created. A contraint was added that stipulates that exactly one of them should be true. Then, the previous constraint is only to be enforced if the boolean variable corresponding to that triple was true. This enforeces the "exactly one" constraint.
+For technical reasons related to limitations of the solver, additional variables were needed. One boolean variable for each of the triples was created. A contraint was added that stipulates that exactly one of them should be true. Then, the constraint from the previous paragraph is only to be enforced if the boolean variable corresponding to that triple was true. This enforces the ``exactly one" constraint.
 
 \subsubsection{Opponent win prevention sub-model}
 The opponent win prevention sub-model will attempt to find a way to prevent the opponent from winning. In this model, the constraint will be that for every triple of coordinates $x, y,z$, $$c_x + c_y + c_y < 2.$$ That is, the sum of every triple of cubes will be less than 2.
 
-This effectively prevents a win. The cases can be broken down by the number of X's in a row. If there are 0 or 1 X's in a row, there is not threat of an opponent win. If there are 2 X's to begin with, this constraint enforces that an O must be placed in the third square (otherwise, the sum of the triple of cubes would be 2, which is not permissible). This covers all cases, since in the case of 3 X's, the opponent has already won and this can not be prevented. 
+This effectively prevents a win. The cases can be broken down by the number of X's in a row. If there are 0 or 1 \XX's in a row, there is not threat of an opponent win. If there are 2 \XX's to begin with, this constraint enforces that an \OO must be placed in the third square (otherwise, the sum of the triple of cubes would be 2, which is not permissible). This covers all cases, since in the case of 3 \XX's, the opponent has already won and this can not be prevented. 
 
-This model will only work if there is exactly one triple in which the opponent is threatening a win. In the case where there are two or more threats where the opponent may win, the model may not be able to be satisfied because the model may only place one mark per turn. This case will be handled by the last submodel.
+This model will only work if there is exactly one triple in which the opponent is threatening a win. In the case where there are two or more threats where the opponent may win, the model may not be able to be satisfied because the model may only place one mark per turn. This edge case will be handled by the last submodel.
 
 \subsubsection{Optimal "other" move}
-The first two models have specific purposes: to win and to prevent the opponent from winning, respectively. However, there are a lot of situations where neither of those goals are possible to solve, and the models will not be satisfiable. This final model serves as a catch-all that plays a move in any circumstance.
+The first two models have specific purposes: to win and to prevent the opponent from winning, respectively. However, there are a lot of situations where neither of those goals are attainable, and the models will not be satisfiable. This final model serves as a catch-all that plays a move in any circumstance.
 
-However, it will not play a random move. Out of all the legal moves, it will optimize over a few metrics. Firstly, if there are multiple different ways for an opponent to win, it will take away one of those opportunities in the hope that the opponent will miss the other (in Qubic, it can be hard to visualize all possible moves, and a human opponent may miss one). If that isn't possible, then it will try to make a move which sets it up for a win.
+However, it will not just select a random move to play. Out of all the legal moves, it will optimize over a few metrics. Firstly, if there are multiple different ways for an opponent to win, it will take away one of those opportunities in the hope that the opponent will miss the other (in Qubic, it can be hard to visualize all possible moves, and a human opponent may miss one). If that isn't possible, then it will try to make a move which sets it up for a win.
 
 % What about trying to get a fork? If not a fork, then maybe a 2? the finally random.
 
@@ -93,35 +110,85 @@ This
 \section{Planning}
 The next AI technique that will be applied to Qubic is Automated Planning. In this technique, there will be a model which specifies the Fluents (variables which characterize the state), Actions ("moves" that can be made to transform from one state to the next), Initial State (set of fluents which are initially true), and Goal State (set of fluents that we want to be true in the end). The input of a planner is the initial state, and the output is a plan, which is a sequence of actions to be taken which take you from the initial state to the goal state.
 
-The usual flavour of planning covers situations that are deterministic (after every action, you know exactly what the resulting state is) and fully observable (you know the whole state). However, this case is not deterministic, since the opponent is free to play whichever move they want in response to your move. Therefore, we must use a more advanced planner called the Fully Observable Non Deterministic Planner (FOND Planner)[Reference to CMuise]. In the case of FOND planners, the input is still the initial state, but the output becomes a "policy", which is a list of if-then rules: if the state is this, then take that move.
+The usual flavour of planning covers situations that are deterministic (after every action, you know exactly what the resulting state is) and fully observable (you know the whole state). However, this case is not deterministic, since the opponent is free to play whichever move they want in response to your move. Therefore, we must use a more advanced planner called the Fully Observable Non Deterministic Planner (FOND Planner)[Reference to CMuise]. In the case of FOND planners, the input is still the initial state, but the output becomes a ``policy", which is a list of if-then rules: if the state is this, then take that move.
 
 
 \subsection{Model}
+The model has the following constants:
+\begin{itemize}
+    \item \texttt{cellxyz}: represents the cell at $(x, y, z)$, where $(x, y, z)$ is a coordinate. For example, \texttt{cell012} is the cell at (0, 1, 2)
+    \item \texttt{mark-x, mark-o}: represents an \XX and \OO, respectively
+\end{itemize}
+
 In my model, there are the following fluents:
 \begin{itemize}
-    \item (cell-mark ?cell - cell ?mark - mark): This represents the mark that each cell holds; specifically, that cell ?cell has mark ?mark
-    \item (x-turn) represents if it is currently X's turn
-    \item (won ?winner - mark) represents the winner of the game. X wins if (won mark-x), and Y wins if (won mark-y) 
-    \item (check-required) represents when a check is required to see if a player has won
+    \item \texttt{(cell-mark ?cell - cell ?mark - mark)}: This represents the mark that each cell holds; specifically, that cell \texttt{?cell} has mark \texttt{?mark}
+    \item \texttt{(x-turn)} represents if it is currently \XX's turn
+    \item \texttt{(won ?winner - mark)} represents the winner of the game. \XX wins if \texttt{(won mark-x)}, and \OO wins if \texttt{(won mark-o)} 
+    \item \texttt{(check-required)} represents when a check is required to see if a player has won
+    \item \texttt{(dead-end)} is used to prevent the planner from playing twice on a certain cube
 \end{itemize}
 
 There are the following actions:
 \begin{itemize}
-    \item (play-x ?cell): plays an X on the board in the ?cell. The preconditions are that ?cell is empty, it's X's turn, no check is required, and neither player has won yet. The effect is that ?cell is marked with an X, it's no longer X's turn, and a check is required.
-    \item play-y: plays a Y on the board. The preconditions are that ?cell is empty, it's not X's turn, a check isn't required, and no player has won yet. The effect is non-deterministic: Y is allowed to be played at any location that is not currently occupied.
-    \item check: checks the board to see if either player has won. The precondition is that a check is required. The effect is that check is no longer required, and if either player has won, it will set the "won" fluent for that player.
+    \item \texttt{(play-x ?cell)}: plays an \XX on the board in the \texttt{?cell}. The preconditions are that \texttt{?cell} is empty, it's \XX's turn, no check is required, and neither player has won yet. The effect is that \texttt{?cell} is marked with an \XX, it's no longer \XX's turn, and a check is required.
+    \item \texttt{(play-o)}: plays an \OO on the board. The preconditions are that \texttt{?cell} is empty, it's not \XX's turn, a check isn't required, and no player has won yet. The effect is non-deterministic: the opponent is allowed to mark \OO at any location that is not currently occupied. Regardless of the opponent's move, a check is required and it becomes \XX's turn.
+    \item \texttt{(check)}: checks the board to see if either player has won. The precondition is that a check is required. The effect is that check is no longer required, and if either player has won, it will set the \texttt{won} fluent for that player.
 \end{itemize}
 
-In general, the order of actions is: play-x, check, play-o, check, play-x..., check, then either X or Y wins.
+The \texttt{(play-x ?cell)} action is straightfoward. However, the \texttt{(play-o)} and \texttt{(check)} actions require some discussion. The former works by using the \texttt{oneof} keyword that is part of FOND planning, which specifies the possible effects of a non-deterministic action. Each of the possible effects corresponds to the player playing one of the cubes. I will show the PDDL then explain it below:\\
+\texttt{(and \\
+    \indent (when \\
+    \indent \indent (cell-mark ?cell mark-empty) \\
+    \indent \indent (and (not (cell-mark ?cell mark-empty)) (cell-mark ?cell mark-o))\\
+    \indent )\\
+    \indent (when \\
+    \indent \indent (not(cell-mark ?cell mark-empty)) \\
+    \indent \indent (dead-end) \\
+    \indent)\\
+)}
 
-\subsection{Results}
+This PDDL works by handling two conditions using conditional effects. If the cell that is selected is empty, the effect is that the cell will be marked with an \OO (making it not empty anymore). Otherwise, the cell selected by the opponent is not empty (i.e. it has a mark), in which case the effect is \texttt{dead-end}. There is no way to get out of a dead end, and the goal explicitly says that there must not be a dead end in the plan, so this prevents the planner from exploring plans where the opponent marks on top of a cell that has already been marked.
 
+The former action works by using a bunch of conditional effects. Each of the winning triples is encoded, and if any of them are marked with the same mark, then it will result in a win for the mark that occupies that triple. This marks the end of the plan, either successfully or unsuccessfully depending on which mark occupied the triple.
 
-\subsection{Discussion}
+In general, the order of actions is: \texttt{play-x, check, play-o, check, play-x..., check}, until either \XX or \OO wins.
 
+\subsection{Results and discussion}
+To verify that the model actually works and generates a suitable plan, I first removed the non-deterministic aspect of the model and allowed the planner to play on behalf of both players. This is the plan that it came up with:
+\begin{displayquote}
+\texttt{(play-x cell000)\\
+(check )\\
+(play-o cell222)\\
+(check )\\
+(play-x cell001)\\
+(check )\\
+(play-o cell221)\\
+(check )\\
+(play-x cell002)\\
+(check )}
+\end{displayquote}
+
+This plan accomplishes the goal (\XX wins the game), so it appears that the model correctly represents the setting.
+
+During the process of modelling this setting, I found that not all models were built equal. My initial naive model was extremely inefficient. I used to check if the game had been won in the Goal section of the PDDL. When I went to generate the plan, after 30 minutes it had used up 57GB of RAM and still hadn't solved the problem yet. I put the win checking logic as an effect of the playing actions, but then it wouldn't register a win until a round later than the win was accomplished. Finally, using a \texttt{(check)} action to check if there is a winner solved both issues.
+
+Moving from the deterministic to non-deterministic model was also challenging. Quantifiers are not supported yet for non-deterministic effects, so I couldn't say ``the effect is that one of the empty cells is marked with an \OO". This problem was solved by using the \texttt{dead-end} fluent. Another challenge with non-deterministic planning was verifying that the policy was correct. Ideally, I would have implemented a program that visualized it with a nice custom graph, but I did not have time.
+
+To verify the policy, I went through the policy.out file, painstakingly verifying a few states to ensure that suitable moves were performed to cause a win and prevent the opponent from winning. I also examined the graph output by the \texttt{prpviz} utility. It is too large to include in its entirety in this report, so I included a cropped version below -- the whole version van be found on the GitHub repo for this project.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.75\textwidth]{policyviz}
+    \caption{A very small snipped of the policy visualization}
+    \label{fig:policyviz}
+\end{figure}
 
 \section{Deep learning}
 The final approach that will be applied to Qubic is Deep Learning.
 
-\lipsum[4-5]
+\subsection{Model}
+The model that was selected was a densely connected neural network with 
+
+
 \end{document}
