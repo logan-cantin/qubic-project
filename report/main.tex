@@ -37,9 +37,77 @@ pdfauthor = {}
 
 \section{Introduction}
 
-\lipsum[1-3]
+Qubic is a 3d version of tictactoe.
+Triple is a row of three cubes...
+Let $c_{i, j, k}$ represent the value of the cube at i,j,k.
+
+Mathematical properties of Qubic (i.e. first-player-wins).
+
+\section{CSPs}
+The Constraint Satisfaction Problem (herein referred to as CSP) is the problem of selecting values for one or more integer variables that satisfies some contraint. For example, if you have three variables, X, Y, Z that are all in the range 0...3, and you are trying to satisfy 3X + 2YZ < 5, the CSP solver would return solutions such as (0, 0, 0), (1, 0, 0), (1, 1, 0), etc.
+
+In this case, we need a way to model the game Qubic as a CSP.
+
+\subsection{Model}
+In the model, we will have a variable representing each of the cubes in Qubic. A value of zero for one of the variables will represent that the corresponding cube is empty; 1 represents an X; and -1 represents an O. The model will take as input the current state of the board, and will return a single move that should be taken next. In this case, the model will only ever play "for" the "O", and as such it will always optimize for O to win.
+
+CSP models are too simple to encode the logic for an advanced Qubic player: a CSP can only represent one strategy, but there are different strategies depending on the situation that you are in. The general strategy breaks down to:
+\begin{enumerate}
+    \item[(a)] If there is a winning move, you should take it.
+    \item[(b)] If the opponent will have a winning move next turn, you should try to block it, if possible.
+    \item[(c)] Otherwise, you should try to work towards making a section of 3 for yourself.
+\end{enumerate}
+The models will be utilized in series: that is, the first model will be run, and if a suitable solution is found, it will make that move. Otherwise, it will attempt the second model, and any suitable move will be taken. Finally, if the first two models fail, the last model will select the move.
+
+\subsubsection{Constraints common to all sub-models}
+Regardless of which sub-model is being used, there are a few common constraints which apply. Firstly, any space which is currently occupied with an X or O must remain that way. In other words, the model may not opt to change a cube which has already been played. Secondly, the model may only play one new move. For example, it can not add two new X's on it's turn to make a win.
+
+\subsubsection{Winning Sub-model}
+The winning sub-model will attempt to find a way for the current player to get a row of three cubes. Mathematically, that means there exists a triple of coordinates $x, y, z$ such that
+$$ c_x + c_y + c_z = -3.$$
+In other words, there should be exactly one triple of cubes such that the the sum of the cubes is -3.
+
+For technical reasons related to limitations of the solver, additional variables were needed. One boolean variable for each of the triples was created. A contraint was added that stipulates that exactly one of them should be true. Then, the previous constraint is only to be enforced if the boolean variable corresponding to that triple was true. This enforeces the "exactly one" constraint.
+
+\subsubsection{Opponent win prevention sub-model}
+The opponent win prevention sub-model will attempt to find a way to prevent the opponent from winning. In this model, the constraint will be that for every triple of coordinates $x, y,z$, $$c_x + c_y + c_y < 2.$$ That is, the sum of every triple of cubes will be less than 2.
+
+This effectively prevents a win. The cases can be broken down by the number of X's in a row. If there are 0 or 1 X's in a row, there is not threat of an opponent win. If there are 2 X's to begin with, this constraint enforces that an O must be placed in the third square (otherwise, the sum of the triple of cubes would be 2, which is not permissible). This covers all cases, since in the case of 3 X's, the opponent has already won and this can not be prevented. 
+
+This model will only work if there is exactly one triple in which the opponent is threatening a win. In the case where there are two or more threats where the opponent may win, the model may not be able to be satisfied because the model may only place one mark per turn. This case will be handled by the last submodel.
+
+\subsubsection{Optimal "other" move}
+The first two models have specific purposes: to win and to prevent the opponent from winning, respectively. However, there are a lot of situations where neither of those goals are possible to solve, and the models will not be satisfiable. This final model serves as a catch-all that plays a move in any circumstance.
+
+However, it will not play a random move. Out of all the legal moves, it will optimize over a few metrics. Firstly, if there are multiple different ways for an opponent to win, it will take away one of those opportunities in the hope that the opponent will miss the other (in Qubic, it can be hard to visualize all possible moves, and a human opponent may miss one). If that isn't possible, then it will try to make a move which sets it up for a win.
+
+% What about trying to get a fork? If not a fork, then maybe a 2? the finally random.
+
+\subsection{Results}
+
+% Do an experiment vs a random player, vs humans, etc.
+
+\subsection{Discussion}
+This
+
+\section{Planning}
+The next AI technique that will be applied to Qubic is Automated Planning. In this technique, there will be a model which specifies the Fluents (variables which characterize the state), Actions ("moves" that can be made to transform from one state to the next), Initial State (set of fluents which are initially true), and Goal State (set of fluents that we want to be true in the end). The input of a planner is the initial state, and the output is a plan, which is a sequence of actions to be taken which take you from the initial state to the goal state.
+
+The usual flavour of planning covers situations that are deterministic (after every action, you know exactly what the resulting state is) and fully observable (you know the whole state). However, this case is not deterministic, since the opponent is free to play whichever move they want in response to your move. Therefore, we must use a more advanced planner called the Fully Observable Non Deterministic Planner (FOND Planner)[Reference to CMuise]. In the case of FOND planners, the input is still the initial state, but the output becomes a "policy", which is a list of if-then rules: if the state is this, then take that move.
+
+In my model, there are the following fluents:
+\begin{itemize}
+    \item (cell-mark ?cell - cell ?mark - mark): This represents the mark that each cell holds; specifically, that cell ?cell has mark ?mark
+    \item (x-turn) represents if it is currently X's turn
+    \item (won ?winner - mark) represents the winner of the game. X wins if (won mark-x), and Y wins if (won mark-y) 
+    \item (check-required) represents when a check is required to see if a player has won
+\end{itemize}
+
+There are the following actions:
 
 
-\subsection*{Subtitle}
+
+\section{Deep learning}
+
 \lipsum[4-5]
 \end{document}
