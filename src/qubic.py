@@ -1,6 +1,18 @@
 import numpy as np
 from ortools.sat.python import cp_model
+import random
 
+def number_to_base(n, b, l = 3):
+    '''From https://stackoverflow.com/questions/2267362/how-to-convert-an-integer-to-a-string-in-any-base'''
+    if n == 0:
+        return [0] * l
+    digits = []
+    while n:
+        digits.append(int(n % b))
+        n //= b
+    if len(digits) < 3:
+        digits.extend([0] * (l - len(digits)))
+    return digits[::-1] 
 
 class Qubic:
 
@@ -48,7 +60,12 @@ class Qubic:
         triples = Qubic.generate_triples()
         hyperboard_triples_sum = np.sum(self.hyperboard.flat[triples], axis=1)
 
-        return np.any(hyperboard_triples_sum == 3) or np.any(hyperboard_triples_sum == -3)
+        if np.any(hyperboard_triples_sum == 3):
+            return 1
+        elif np.any(hyperboard_triples_sum == -3):
+            return -1
+        else:
+            return 0
 
     def make_move(self, player_id, coords):
 
@@ -80,6 +97,28 @@ class Qubic:
             print(slice, end='\n')
         
         print(f'Player {self.next_player}\'s turn.')
+
+    @staticmethod
+    def random_game():
+        '''After initializing the board, it will select a random order for players to play the game. Then, it will play it randomly. It returns the board state for each of the plays, and the outcome.'''
+
+        q = Qubic()
+
+        states = list()
+        plays = [x for x in range(27)]
+        random.shuffle(plays)
+
+        for move in plays:
+            coords = number_to_base(move, 3, 3)
+            winner = q.make_move(q.next_player, coords)
+            states.append(q.hyperboard.copy())
+            if winner != 0:
+                break
+        
+        return states, winner, q
+
+
+
 
 
                 

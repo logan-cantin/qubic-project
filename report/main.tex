@@ -95,6 +95,8 @@ The next AI technique that will be applied to Qubic is Automated Planning. In th
 
 The usual flavour of planning covers situations that are deterministic (after every action, you know exactly what the resulting state is) and fully observable (you know the whole state). However, this case is not deterministic, since the opponent is free to play whichever move they want in response to your move. Therefore, we must use a more advanced planner called the Fully Observable Non Deterministic Planner (FOND Planner)[Reference to CMuise]. In the case of FOND planners, the input is still the initial state, but the output becomes a "policy", which is a list of if-then rules: if the state is this, then take that move.
 
+
+\subsection{Model}
 In my model, there are the following fluents:
 \begin{itemize}
     \item (cell-mark ?cell - cell ?mark - mark): This represents the mark that each cell holds; specifically, that cell ?cell has mark ?mark
@@ -104,10 +106,22 @@ In my model, there are the following fluents:
 \end{itemize}
 
 There are the following actions:
+\begin{itemize}
+    \item (play-x ?cell): plays an X on the board in the ?cell. The preconditions are that ?cell is empty, it's X's turn, no check is required, and neither player has won yet. The effect is that ?cell is marked with an X, it's no longer X's turn, and a check is required.
+    \item play-y: plays a Y on the board. The preconditions are that ?cell is empty, it's not X's turn, a check isn't required, and no player has won yet. The effect is non-deterministic: Y is allowed to be played at any location that is not currently occupied.
+    \item check: checks the board to see if either player has won. The precondition is that a check is required. The effect is that check is no longer required, and if either player has won, it will set the "won" fluent for that player.
+\end{itemize}
 
+In general, the order of actions is: play-x, check, play-o, check, play-x..., check, then either X or Y wins.
+
+\subsection{Results}
+
+
+\subsection{Discussion}
 
 
 \section{Deep learning}
+The final approach that will be applied to Qubic is Deep Learning.
 
 \lipsum[4-5]
 \end{document}
