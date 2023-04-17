@@ -1,7 +1,9 @@
 
 # QUBIC
 
-Welcome to my final project for CISC 352 - Artificial Intelligence. I will be using three AI techniques to solve a 3D variant of the game Tic Tac Toe. 
+Welcome to my final project for CISC 352 - Artificial Intelligence. I will be using three AI techniques to solve a 3D variant of the game Tic Tac Toe.
+
+The report can be found at report/main.pdf.
 
 ## Techniques
 The three techniques are CSPs, Planning, and Deep Learning.
