@@ -249,7 +249,7 @@ The simulation was run with model 1 representing \XX and \OO using a random stra
 
 Theoretically, as the first player, \XX can win every time. Model 1's 90\% win rate is impressive, but it would be an interesting exercise to try to increase the win rate, potentially to 100\%. There are $3^{27}$ possible board states, which is much higher than the number of data points that the model was trained on, so it may benefit from more training.
 
-Model 2 took so long to run that it was practically infeasible to run 1000 simulations. 10 simulations were run with model 2 representing \XX and \OO random, and \XX won 6 out of 10 times. This is not a statistically significant improvement over baseline.
+Model 2 took so long to run that it was practically infeasible to run 1000 simulations. 100 simulations were run with model 2 representing \XX and \OO random, and \XX won 53 out of 100 times. This is not a statistically significant difference from baseline, meaning that model 2 is no better than random.
 
 The reason that model 2 takes so long is that it has to do a lot more inferences. For every candidate move (there could be up to 27), it has to use the Tic Tac Toe model on each of the slices (there are 11), and then perform an inference on all of the results from the slices. There multiple moves per game, and therefore there are often multiple thousand inferences per game. Any potential space savings from using the two models like this are outweighed by the large time increase to do the inference.
 

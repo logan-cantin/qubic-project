@@ -117,11 +117,4 @@ class Qubic:
         
         return states, winner, q
 
-
-
-
-
-                
-
 q = Qubic()
-
