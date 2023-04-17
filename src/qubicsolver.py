@@ -100,10 +100,9 @@ class QubicSolver():
             return None
 
 
-
+# Initialize qubic board and solver
 q = Qubic()
 o = QubicSolver(-1)
-
 
 while not q.solved():
     
