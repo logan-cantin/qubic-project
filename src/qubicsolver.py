@@ -112,14 +112,14 @@ while not q.solved():
         q.print()
         coords = tuple(int(x) for x in input("What's your move? ").split(' '))
         q.make_move(1, coords)
+
+    # CSP
     else:
-        
         move = o.winning_move(q)
         if move is None:
             move = o.prevent_opponent_win(q)
         if move is None:
             move = o.best_other_move(q)
         q.make_move(-1, move)
-
 
 q.print()
