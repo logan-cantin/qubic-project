@@ -34,16 +34,22 @@ pdftitle = {},
 pdfauthor = {}
 }
 
+\title{Applying AI techniques to solve Qubic}
+\author{Logan Cantin}
+\date{\today}
+
 %-----------------------
 % Begin document
 %-----------------------
 \begin{document} %All text i dokumentet hamnar mellan dessa taggar, allt ovanför är formatering av dokumentet
 
+\maketitle
+
 \section{Introduction}
 
 Tic Tac Toe is a fun two-player game that can be played on pen and paper. A 3x3 grid is drawn on the page and the players alternate marking an empty square on the grid. The goal of the game is to get three of your marks in a straight line; that is, a horizonal, vertical, or diagonal line.
 
-The original version of Tic Tac Toe is not usually played by adults, because it is very simple. If both players have optimal strategy, every game results in a draw, which makes the game futile.\footnote{https://mathworld.wolfram.com/Tic-Tac-Toe.html} Indeed, it is not hard for an adult to play a perfect game, since there aren't that many squares on the board and all possibilities can be considered.
+The original version of Tic Tac Toe is not usually played by adults, because it is very simple. If both players have optimal strategy, every game results in a draw, which makes the game futile.\footnote{For more details, see \url{https://mathworld.wolfram.com/Tic-Tac-Toe.html}} Indeed, it is not hard for an adult to play a perfect game, since there aren't that many squares on the board and all possibilities can be considered.
 
 Qubic is a variation of Tic Tac Toe that is in 3D. Traditionally, the size of the game board is 4x4x4 (for reasons that will be explained below), but in this report the 3x3x3 variant will be considered for simplicity's sake. This game has the same rules as Tic Tac Toe: players alternate placing their marks on empty cubes on the board. The goal of the game is to get a row of 3. However, now there are rows of 3 that are parallel to the x, y, and z axes, as well as diagonals in the xy, yz, and xz planes, and even diagonals spanning all three axes.
 
@@ -54,14 +60,14 @@ Qubic is a variation of Tic Tac Toe that is in 3D. Traditionally, the size of th
     \label{fig:qubic}
 \end{figure}
 
-\footnotetext{Image from Chang math blog}
+\footnotetext{Image from \url{http://cclmath.blogspot.com/2017/10/are-there-ties-in-3d-tic-tac-toe.html}}
 
-Technically speaking, 3x3x3 Qubic is also a futile game, since an optimal player who plays first is guaranteed to win every time.\footnote{4x4x4 Qubic also has a first-player-wins strategy, however it is much more complicated than the 3x3x3, which is why it is a more popular variant. \url{http://library.msri.org/books/Book42/files/golomb.pdf}} However, due to the complexity of visualizing the game in three dimensions and the number of possible rows, the average adult player has a much harder time considering all possibilities, resulting in games that are more evenly matched and interesting.
+Technically speaking, 3x3x3 Qubic is also a futile game, since an optimal player who plays first is guaranteed to win every time.\footnote{4x4x4 Qubic also has a first-player-wins strategy, however it is much more complicated than the 3x3x3, which is why it is a more popular variant. For more details, see \url{http://library.msri.org/books/Book42/files/golomb.pdf}} However, due to the complexity of visualizing the game in three dimensions and the number of possible rows, the average adult player has a much harder time considering all possibilities, resulting in games that are more evenly matched and interesting.
 
 \subsection{Notation and terminology}
 This report will include some mathematical notation and terminology, which will be defined in this section. 
 
-The 3D gameboard is referred to as the "hyperboard". We will let $c_{x}$ represent the value of the cube at position $x$, where $x$ is a 3-tuple of integers in the range 0-2 inclusive. The cube positions will be indexed from 0; therefore, the top left back corner is (0, 0, 0) and the bottom right front corner is (2, 2, 2).
+The 3D gameboard is referred to as the ``hyperboard". We will let $c_{x}$ represent the value of the cube at position $x$, where $x$ is a 3-tuple of integers in the range 0-2 inclusive. The cube positions will be indexed from 0; therefore, the top left back corner is (0, 0, 0) and the bottom right front corner is (2, 2, 2).
 
 A triple is a row of three cubes that are in a vertical, horizontal, or diagonal line through the cube. If a player occupies all the cubes in a triple with their mark, then they have won. Mathematically, a set of three coordinates $\{x, y, z\}$ is a triple if and only if $y = v + x$ and $z = 2v + x$, where $v$ is one of \{$(1, 0, 0)$, $(0, 1, 0)$, $(0, 0, 1)$, $(1, 1, 0)$, $(1, 0, 1)$, $(0, 1, 1)$, $(1, 1, 1)$, $(1, 1, -1)$, $(1, -1, 1)$, $(1, -1, -1)$\}. Examples of triples include $\{(0, 0, 0), (0, 1, 0), (0, 2, 0)\}$ and $\{(0, 0, 0), (1, 1, 1), (2, 2, 2)\}$.
 
@@ -109,9 +115,10 @@ Ideally, it would not just select a random move to play. Out of all the legal mo
 
 Unfortunately, I was not able to get Google's ORTools library to optimize in this fashion. There is an optimization function that can be applied to the CSP, but it was poorly documented and I was not able to figure it out in time. My model just selects a random move.
 
-
 \subsection{Results and discussion}
-The CSP is ok at the game. 
+The CSP is ok at the game, but not great. The two sub-models that were implemented work as intended: the model will take a winning move if it has one, and will prevent the opponent from winning if possible. It's no match against a competent human player though, since it can't deal with forks (situations where there are 2 different ways for the opponent to win). 
+
+An interesting extension to this model would be to fully implement the Newell and Simon algorithm that was mentioned in an earlier footnote. With that algorithm, the model might be able to beat the average person. It would be cool to see if it generalizes well to three dimensions.
 
 
 \section{Planning}
@@ -155,7 +162,7 @@ The model has the following constants:
     \indent)\\
 )}
 
-This PDDL works by handling two conditions using conditional effects. If the cell that is selected is empty, the effect is that the cell will be marked with an \OO (making it not empty anymore). Otherwise, the cell selected by the opponent is not empty (i.e. it has a mark), in which case the effect is \texttt{dead-end}. There is no way to get out of a dead end, and the goal explicitly says that there must not be a dead end in the plan, so this prevents the planner from exploring plans where the opponent marks on top of a cell that has already been marked.
+This PDDL works by handling two conditions using conditional effects. If the cell that is selected is by the opponent is empty, the effect is that the cell will be marked with an \OO (making it not empty anymore). Otherwise, the cell selected by the opponent is not empty (i.e. it has a mark), in which case the effect is \texttt{dead-end}. This situation never happens in real life, hence the \texttt{dead-end} effect. There is no way to get out of a dead end, and the goal explicitly says that there must not be a dead end in the plan, so this prevents the planner from exploring plans where the opponent marks on top of a cell that has already been marked.
 
 The latter action works by using a bunch of conditional effects. Each of the winning triples is encoded, and if any of them are marked with the same mark, then it will result in a win for the mark that occupies that triple. This marks the end of the plan, either successfully or unsuccessfully depending on which mark occupied the triple.
 
@@ -231,7 +238,7 @@ The model was trained with a categorical cross-entropy loss function  and its ou
 \subsection{Model 2}
 The astute reader may have noticed that Qubic has a lot of symmetry. Practically speaking, Qubic is just a bunch of Tic Tac Toe games that share some cells and are being played out simultaneously. Model 2 will attempt to exploit that symmetry to reduce the size of the model without impacting performance.
 
-The model works by dividing the hyperboard into ``slices", each of which  corresponds to a Tic Tac Toe board; that is, the slices in the xy, xz, and yz planes as well as the diagonal slices. It will use a deep neural network trained on Tic Tac Toe to generate the probabilities of each slice winning, losing, or drawing. Then, those probabilities will be aggregated into a new vector, which will be fed to a smaller neural network that will attempt to predict the winner of the game. Conceivably, this would result in a model that is smaller: the redundancy of learning Tic Tac Toe in 3D would be eliminated, and would be replaced by the much simpler tasks of learning Tic Tac Toe in 2D and combining the slices' probabilities together.
+The model works by dividing the hyperboard into ``slices", each of which  corresponds to a 2D Tic Tac Toe board; that is, the slices in the xy, xz, and yz planes as well as the diagonal slices. It will use a deep neural network trained on Tic Tac Toe to generate the probabilities of each slice winning, losing, or drawing. Then, those probabilities will be aggregated into a new vector, which will be fed to a smaller neural network that will attempt to predict the winner of the game. Conceivably, this could result in a model that is smaller: the redundancy of learning Tic Tac Toe in 3D would be eliminated, and would be replaced by the much simpler tasks of learning Tic Tac Toe in 2D and combining the slices' probabilities together.
 
 I did not write the code to generate the 2D Tic Tac Toe model. I took it from \url{https://medium.com/swlh/tic-tac-toe-and-deep-neural-networks-ea600bc53f51}. I wrote the code that converts hyperboards to slices, and the code of the model that combines the probabilities. Its architecture is:
 \begin{itemize}
@@ -249,7 +256,7 @@ The simulation was run with model 1 representing \XX and \OO using a random stra
 
 Theoretically, as the first player, \XX can win every time. Model 1's 90\% win rate is impressive, but it would be an interesting exercise to try to increase the win rate, potentially to 100\%. There are $3^{27}$ possible board states, which is much higher than the number of data points that the model was trained on, so it may benefit from more training.
 
-Model 2 took so long to run that it was practically infeasible to run 1000 simulations. 100 simulations were run with model 2 representing \XX and \OO random, and \XX won 53 out of 100 times. This is not a statistically significant difference from baseline, meaning that model 2 is no better than random.
+Model 2 took so long to run that it was practically infeasible to run 1000 simulations. 100 simulations were run with model 2 playing on behalf of \XX, and \OO taking random moves:  \XX won 53 out of 100 times. This is not a statistically significant difference from baseline, meaning that model 2 is no better than random.
 
 The reason that model 2 takes so long is that it has to do a lot more inferences. For every candidate move (there could be up to 27), it has to use the Tic Tac Toe model on each of the slices (there are 11), and then perform an inference on all of the results from the slices. There multiple moves per game, and therefore there are often multiple thousand inferences per game. Any potential space savings from using the two models like this are outweighed by the large time increase to do the inference.
 
@@ -258,8 +265,10 @@ It is unclear why model 2 performs so poorly. Due to the large amount of time re
 \section{Conclusion}
 In this report, three AI techniques were applied to the game Qubic. 
 
-First was CSPs. CSPs were a promising technique.
+First was CSPs. CSPs were a promising technique, but due to the technical limitations / poor documentation of ORTools, I was not able to implement the model in the way I had originally planned to. As such, it is easy to beat. It was interesting to try to model the game as a CSP.
 
-Then, Automated Planning was applied.
+Then, Automated Planning was applied. This proved to be a big challenge, but in the end was successful. The deterministic model is able to make suitable plans. The non-deterministic policy seems like it would work well against a human opponent.
+
+Finally, Deep learning was applied. Model 1 had a high win rate and was easy to train. Model 2 was complicated, took a long time, and did not have good results. Overall, it was a good experiment, and good exposeure to how to use Keras to train deep neural networks.
 
 \end{document}
